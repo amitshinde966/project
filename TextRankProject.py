@@ -77,6 +77,7 @@ def summerized_text(final_text,vect_data):
 
     print(ranked_sentences[:no_of_line])
 
+#summarize all complete thread
 def summarization(text):
     final_text = unwanted_text_removal(text)
     final_text = combine_words_to_sentence(final_text)
