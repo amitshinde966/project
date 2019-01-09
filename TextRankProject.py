@@ -77,24 +77,37 @@ def summerized_text(final_text,vect_data):
 
     print(ranked_sentences[:no_of_line])
 
-
+def summarization(text):
+    final_text = unwanted_text_removal(text)
+    final_text = combine_words_to_sentence(final_text)
+    vect_data=vect_conversion(final_text)
+    summerized_text(final_text,vect_data)
 
 # calling of functions
 data_thread = read_csv()
 data = remove_duplicate(data_thread)
 thread_number,text = get_needed_data(data)
-count =0
-merger_list =[]
-redundent = thread_number[0]
-for i in thread_number:
-    if redundent == i:
-        print(i)
+
+count=0
+g_count=0
+redundent=thread_number[0]
+one_complete_thred=[]
+
+for thread_iterator in thread_number:
+    if thread_iterator == redundent:
+        one_complete_thred.insert(count, text[g_count])
+        count+=1
+        g_count+=1
+
     else:
-        for i in range(count):
-            merger_list.append(text[i])
-        redundent = i
-
-
+        # print(one_complete_thred)
+        summarization(one_complete_thred)
+        one_complete_thred.clear()
+        count=0
+        one_complete_thred.insert(count, text[g_count])
+        count+=1;
+        g_count+=1
+        redundent=thread_iterator
 
 
 
