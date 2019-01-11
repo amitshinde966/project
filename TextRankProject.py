@@ -2,11 +2,58 @@ import warnings
 
 warnings.filterwarnings("ignore")  # Ignoring unnecessory warnings
 import sys
+import string
 import numpy as np  # for large and multi-dimensional arrays
 import pandas as pd  # for data manipulation and analysis
 import nltk  # Natural language processing tool-kit
 from sklearn.feature_extraction.text import CountVectorizer  # For Bag of words
 
+
+def classify(ranked_text):
+	news_df = pd.read_csv("input/uci-news-aggregator.csv", sep = ",")
+	# news_df.CATEGORY.unique()
+
+
+	news_df['CATEGORY'] = news_df.CATEGORY.map({ 'b': 1, 't': 2, 'e': 3, 'm': 4 })
+	news_df['TITLE'] = news_df.TITLE.map(
+	    lambda x: x.lower().translate(str.maketrans('','', string.punctuation))
+	)
+	news_df.head()
+	from sklearn.model_selection import train_test_split
+
+	X_train, X_test, y_train, y_test = train_test_split(
+	    news_df['TITLE'],
+	    news_df['CATEGORY'],
+	    random_state = 1	
+	)
+	
+	from sklearn.feature_extraction.text import CountVectorizer
+
+	count_vector = CountVectorizer(stop_words = 'english')
+	training_data = count_vector.fit_transform(X_train)
+	testing_data = count_vector.transform(ranked_text)
+	
+	from sklearn.naive_bayes import MultinomialNB
+	
+	naive_bayes = MultinomialNB()
+	naive_bayes.fit(training_data, y_train)
+
+	predictions_nb = naive_bayes.predict(testing_data)
+	print(predictions_nb)
+
+
+	#from sklearn.metrics import confusion_matrix
+
+	#cnf_matrix = confusion_matrix(y_test, predictions_nb)
+	#print(cnf_matrix)
+
+	#from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+
+	#print("Naive Bayes Analysis")
+	#print("Accuracy score: ", accuracy_score(y_test, predictions_nb))
+	#print("Recall score: ", recall_score(y_test, predictions_nb, average = 'weighted'))
+	#print("Precision score: ", precision_score(y_test, predictions_nb, average = 'weighted'))
+	#print("F1 score: ", f1_score(y_test, predictions_nb, average = 'weighted'))
 
 # function to read CSV dataset
 def read_csv():
@@ -72,18 +119,22 @@ def summerized_text(final_text,vect_data):
     scores = nx.pagerank(nx_graph)
 
     ranked_sentences = sorted(((scores[i], s) for i, s in enumerate(final_text)), reverse=True)
-
+ 
     no_of_line = 5
-
-    print(ranked_sentences[:no_of_line])
+    #print(final)
+    return ranked_sentences[:no_of_line]
 
 #summarize all complete thread
 def summarization(text):
     final_text = unwanted_text_removal(text)
     final_text = combine_words_to_sentence(final_text)
     vect_data=vect_conversion(final_text)
-    summerized_text(final_text,vect_data)
-
+    summarized_data = summerized_text(final_text,vect_data)
+    ranked_text = []
+    for i in range(0,5):
+    	ranked_text.append(summarized_data[i][1])
+    classify(ranked_text)
+    #print(summarized_data)
 # calling of functions
 data_thread = read_csv()
 data = remove_duplicate(data_thread)
