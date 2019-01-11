@@ -12,7 +12,7 @@ from sklearn.feature_extraction.text import CountVectorizer  # For Bag of words
 def read_csv():
     #print("input/twitter/five_ten.csv")
     #data_path = input("Enter Dataset Path")
-    data_path="input/twitter/five_ten.csv"
+    data_path="input/twitter/twentyfive_thirty.csv"
     data_threads = pd.read_csv(data_path, encoding='latin-1')
     return data_threads
 
@@ -39,7 +39,7 @@ def unwanted_text_removal(final_text):
         sentence = re.sub(cleanr, ' ', sentence)  # Removing HTML tags
         sentence = re.sub(r'[?|!|\'|"|#]', r'', sentence)
         sentence = re.sub(r'[.|,|)|(|\|/]', r' ', sentence)  # Removing Punctuations
-        words = [word for word in sentence.split()]  # Stemming and removing stopwords
+        words = [word for word in sentence.split()]
         temp.append(words)
 
     return temp
@@ -73,7 +73,7 @@ def summerized_text(final_text,vect_data):
 
     ranked_sentences = sorted(((scores[i], s) for i, s in enumerate(final_text)), reverse=True)
 
-    no_of_line = 2
+    no_of_line = 5
 
     print(ranked_sentences[:no_of_line])
 
