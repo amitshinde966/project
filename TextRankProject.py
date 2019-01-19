@@ -10,44 +10,64 @@ from sklearn.feature_extraction.text import CountVectorizer  # For Bag of words
 
 
 def classify(ranked_text):
-	news_df = pd.read_csv("input/uci-news-aggregator.csv", sep = ",")
-	# news_df.CATEGORY.unique()
+    news_df = pd.read_csv("input/uci-news-aggregator.csv", sep = ",")
+    # news_df.CATEGORY.unique()
 
-
-	news_df['CATEGORY'] = news_df.CATEGORY.map({ 'b': 1, 't': 2, 'e': 3, 'm': 4 })
-	news_df['TITLE'] = news_df.TITLE.map(
-	    lambda x: x.lower().translate(str.maketrans('','', string.punctuation))
+    news_df['CATEGORY'] = news_df.CATEGORY.map({ 'b': 1, 't': 2, 'e': 3, 'm': 4 })
+    news_df['TITLE'] = news_df.TITLE.map(
+        lambda x: x.lower().translate(str.maketrans('','', string.punctuation))
 	)
-	news_df.head()
-	from sklearn.model_selection import train_test_split
-
-	X_train, X_test, y_train, y_test = train_test_split(
+    news_df.head()
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(
 	    news_df['TITLE'],
 	    news_df['CATEGORY'],
 	    random_state = 1	
 	)
-	
-	from sklearn.feature_extraction.text import CountVectorizer
-
-	count_vector = CountVectorizer(stop_words = 'english')
-	training_data = count_vector.fit_transform(X_train)
-	testing_data = count_vector.transform(ranked_text)
-	
-	from sklearn.naive_bayes import MultinomialNB
-	
-	naive_bayes = MultinomialNB()
-	naive_bayes.fit(training_data, y_train)
-
-	predictions_nb = naive_bayes.predict(testing_data)
-	print(predictions_nb)
+    from sklearn.feature_extraction.text import CountVectorizer
+    count_vector = CountVectorizer(stop_words = 'english')
+    training_data = count_vector.fit_transform(X_train)
+    testing_data = count_vector.transform(ranked_text)
+    tree(training_data,y_train,testing_data)
 
 
-	#from sklearn.metrics import confusion_matrix
 
-	#cnf_matrix = confusion_matrix(y_test, predictions_nb)
-	#print(cnf_matrix)
 
-	#from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+def NVB(training_data,y_train,testing_data):
+    from sklearn.naive_bayes import MultinomialNB
+    print("NB")
+    naive_bayes = MultinomialNB()
+    naive_bayes.fit(training_data, y_train)
+    predictions_nb = naive_bayes.predict(testing_data)
+    print(predictions_nb)
+
+def SVM(training_data,y_train,testing_data):
+    print("SVM")
+    from sklearn.svm import SVC
+    svclassifier = SVC(kernel='linear')
+    svclassifier.fit(training_data, y_train)
+    predictions_sv = svclassifier.predict(testing_data)
+    print(predictions_sv)
+
+def RF(training_data,y_train,testing_data):
+    print("rf")
+    from sklearn.ensemble import RandomForestRegressor
+    regressor = RandomForestRegressor(n_estimators=2, random_state=0)
+    regressor.fit(training_data, y_train)
+    y_pred = regressor.predict(testing_data)
+    print(y_pred)
+
+def tree(training_data,y_train,testing_data):
+
+    from sklearn.tree import tree
+    regressor = tree.DecisionTreeClassifier()
+    regressor.fit(training_data, y_train)
+    print("tree")
+    y_pred = regressor.predict(testing_data)
+    print(y_pred)
+
+
+#from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 
 	#print("Naive Bayes Analysis")
 	#print("Accuracy score: ", accuracy_score(y_test, predictions_nb))
