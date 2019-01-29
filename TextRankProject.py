@@ -3,6 +3,7 @@ import warnings
 warnings.filterwarnings("ignore")  # Ignoring unnecessory warnings
 import sys
 import string
+import pickle
 import numpy as np  # for large and multi-dimensional arrays
 import pandas as pd  # for data manipulation and analysis
 import nltk  # Natural language processing tool-kit
@@ -10,56 +11,22 @@ from sklearn.feature_extraction.text import CountVectorizer  # For Bag of words
 
 
 def classify(ranked_text):
-	news_df = pd.read_csv("input/uci-news-aggregator.csv", sep = ",")
-	# news_df.CATEGORY.unique()
+    from sklearn.feature_extraction.text import CountVectorizer
+    count_vector = CountVectorizer(stop_words='english')
+    testing_data = count_vector.transform(ranked_text)
+    filename = 'News_finalized_model.sav'
+    model = pickle.load(open(filename, 'rb'))
 
+    predictions_nb = model.predict(testing_data)
+    print(predictions_nb)
+    exit(1)
 
-	news_df['CATEGORY'] = news_df.CATEGORY.map({ 'b': 1, 't': 2, 'e': 3, 'm': 4 })
-	news_df['TITLE'] = news_df.TITLE.map(
-	    lambda x: x.lower().translate(str.maketrans('','', string.punctuation))
-	)
-	news_df.head()
-	from sklearn.model_selection import train_test_split
-
-	X_train, X_test, y_train, y_test = train_test_split(
-	    news_df['TITLE'],
-	    news_df['CATEGORY'],
-	    random_state = 1	
-	)
-	
-	from sklearn.feature_extraction.text import CountVectorizer
-
-	count_vector = CountVectorizer(stop_words = 'english')
-	training_data = count_vector.fit_transform(X_train)
-	testing_data = count_vector.transform(ranked_text)
-	
-	from sklearn.naive_bayes import MultinomialNB
-	
-	naive_bayes = MultinomialNB()
-	naive_bayes.fit(training_data, y_train)
-
-	predictions_nb = naive_bayes.predict(testing_data)
-	print(predictions_nb)
-
-
-	#from sklearn.metrics import confusion_matrix
-
-	#cnf_matrix = confusion_matrix(y_test, predictions_nb)
-	#print(cnf_matrix)
-
-	#from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
-
-	#print("Naive Bayes Analysis")
-	#print("Accuracy score: ", accuracy_score(y_test, predictions_nb))
-	#print("Recall score: ", recall_score(y_test, predictions_nb, average = 'weighted'))
-	#print("Precision score: ", precision_score(y_test, predictions_nb, average = 'weighted'))
-	#print("F1 score: ", f1_score(y_test, predictions_nb, average = 'weighted'))
 
 # function to read CSV dataset
 def read_csv():
-    #print("input/twitter/five_ten.csv")
-    #data_path = input("Enter Dataset Path")
-    data_path="input/twitter/twentyfive_thirty.csv"
+    # print("input/twitter/five_ten.csv")
+    # data_path = input("Enter Dataset Path")
+    data_path = "input/twitter/twentyfive_thirty.csv"
     data_threads = pd.read_csv(data_path, encoding='latin-1')
     return data_threads
 
@@ -91,6 +58,7 @@ def unwanted_text_removal(final_text):
 
     return temp
 
+
 def combine_words_to_sentence(final_text):
     temp = []
     for row in final_text:
@@ -100,12 +68,14 @@ def combine_words_to_sentence(final_text):
         temp.append(sequ)
     return temp
 
+
 def vect_conversion(final_text):
     count_vect = CountVectorizer(max_features=5000)
     vect_data = count_vect.fit_transform(final_text)
     return vect_data
 
-def summerized_text(final_text,vect_data):
+
+def summerized_text(final_text, vect_data):
     sim_mat = np.zeros([len(final_text), len(final_text)])
     from sklearn.metrics.pairwise import cosine_similarity
     for i in range(len(final_text)):
@@ -119,49 +89,50 @@ def summerized_text(final_text,vect_data):
     scores = nx.pagerank(nx_graph)
 
     ranked_sentences = sorted(((scores[i], s) for i, s in enumerate(final_text)), reverse=True)
- 
+
     no_of_line = 5
-    #print(final)
+    # print(final)
     return ranked_sentences[:no_of_line]
 
-#summarize all complete thread
+
+# summarize all complete thread
 def summarization(text):
     final_text = unwanted_text_removal(text)
     final_text = combine_words_to_sentence(final_text)
-    vect_data=vect_conversion(final_text)
-    summarized_data = summerized_text(final_text,vect_data)
+    vect_data = vect_conversion(final_text)
+    summarized_data = summerized_text(final_text, vect_data)
     ranked_text = []
-    for i in range(0,5):
-    	ranked_text.append(summarized_data[i][1])
+    for i in range(0, 5):
+        ranked_text.append(summarized_data[i][1])
     classify(ranked_text)
-    #print(summarized_data)
+    # print(summarized_data)
+
+
 # calling of functions
 data_thread = read_csv()
 data = remove_duplicate(data_thread)
-thread_number,text = get_needed_data(data)
+thread_number, text = get_needed_data(data)
 
-count=0
-g_count=0
-redundent=thread_number[0]
-one_complete_thred=[]
+count = 0
+g_count = 0
+redundent = thread_number[0]
+one_complete_thred = []
 
 for thread_iterator in thread_number:
     if thread_iterator == redundent:
         one_complete_thred.insert(count, text[g_count])
-        count+=1
-        g_count+=1
+        count += 1
+        g_count += 1
 
     else:
         # print(one_complete_thred)
         summarization(one_complete_thred)
         one_complete_thred.clear()
-        count=0
+        count = 0
         one_complete_thred.insert(count, text[g_count])
-        count+=1;
-        g_count+=1
-        redundent=thread_iterator
-
-
+        count += 1;
+        g_count += 1
+        redundent = thread_iterator
 
 # for i in range(no_threads):
 #     merger_list.append(text[i])
