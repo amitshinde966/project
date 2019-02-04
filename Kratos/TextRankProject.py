@@ -1,12 +1,9 @@
 import warnings
 
 warnings.filterwarnings("ignore")  # Ignoring unnecessory warnings
-import sys
 import string
-import pickle
 import numpy as np  # for large and multi-dimensional arrays
 import pandas as pd  # for data manipulation and analysis
-import nltk  # Natural language processing tool-kit
 from sklearn.feature_extraction.text import CountVectorizer  # For Bag of words
 
 
@@ -34,28 +31,22 @@ def classify(ranked_text):
     training_data = count_vector.fit_transform(X_train)
     testing_data = count_vector.transform(ranked_text)
 
-    from sklearn.naive_bayes import MultinomialNB
-    naive_bayes = MultinomialNB()
-    naive_bayes.fit(training_data, y_train)
-    filename = 'News_finalized_model.sav'
-    pickle.dump(naive_bayes, open(filename, 'wb'))
-    filename = 'News_finalized_model.sav'
-    model = pickle.load(open(filename, 'rb'))
+    from Kratos import Classifications
 
-    predictions_nb = model.predict(testing_data)
-    print(predictions_nb)
+    result = Classifications.naive_bayes(training_data, y_train, testing_data)
+    print(result)
 
 
 # function to read CSV dataset
-def read_csv(FileName):
+def read_csv(file_path):
     """
     This Function will read the CSV input file
-    :param str FileName : The path to the input file
+    :param str file_path : The path to the input file
     :rtype dataframe : return the dataframe of the pandas library
     :return : return the pandas dataframe of the input file
 
     """
-    data_threads = pd.read_csv(FileName, encoding='latin-1')
+    data_threads = pd.read_csv(file_path, encoding='latin-1')
     return data_threads
 
 
