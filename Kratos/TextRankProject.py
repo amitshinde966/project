@@ -79,7 +79,9 @@ def unwanted_text_removal(final_text):
        """
     import re
     temp = []
+    t=0
     for sentence in final_text:
+        t=t+1
         sentence = re.sub(r'\w+:\/{2}[\d\w-]+(\.[\d\w-]+)*(?:(?:\/[^\s/]*))*', '', sentence)
         sentence = sentence.lower()
         cleanr = re.compile('<.*?>')
@@ -156,6 +158,9 @@ def summarization(text,No_of_sentences=5):
     vect_data = vect_conversion(final_text)
     summarized_data = text_rank(final_text, vect_data)
     ranked_text = []
+
+    print(summarized_data)
+
     for i in range(0, No_of_sentences):
         ranked_text.append(summarized_data[i][1])
 
@@ -174,8 +179,8 @@ def text_rank_output(FilePath):
     :return:
     """
     data_thread = read_csv(FilePath)
-    data = remove_duplicate(data_thread)
-    thread_number, text = get_needed_data(data)
+    # data = remove_duplicate(data_thread)
+    thread_number, text = get_needed_data(data_thread)
 
     count = 0
     g_count = 0

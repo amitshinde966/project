@@ -1,3 +1,5 @@
 from Kratos import TextRankProject as po
 
-po.text_rank_output("input/twitter/twentyfive_thirty.csv")
+# data=pandas.read_csv("input/chat.csv")
+# data2=pandas.read_csv("input/twitter/twenty_twentyfive.csv",encoding='latin-1')
+po.text_rank_output("input/twitter/twenty_twentyfive.csv")
